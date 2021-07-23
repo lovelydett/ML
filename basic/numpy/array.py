@@ -57,6 +57,15 @@ def ndarray_attributes():
     print(f'a.ndim:\n{a.ndim}') # namely rank
     print(f'a.itemsize:\n{a.itemsize}')
 
+def matrix_transpose():
+    A = np.array([[1, 2, 3]]) # (1, 5)
+    A_T = np.transpose(A)
+    print(f'A.shape:\n{A.shape}')
+    print(f'A_T.shape:\n{A_T.shape}')
+    C = np.array([1, 2, 3]) # diff from A! (5, )
+    print(f'C.shape:\n{C.shape}')
+
+
 if __name__ == "__main__":
-    ndarray_attributes()
+    matrix_transpose()
 
