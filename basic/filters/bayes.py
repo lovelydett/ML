@@ -1,9 +1,10 @@
 # tt
 # 2021.9.2
-# Simple bayes filter demos
+# Simple bayes filter demos (discrete and continuous cases)
 
 import numpy as np
 import random as rd
+import math
 
 def getUncertainty(possibility) -> bool:
     '''
@@ -11,6 +12,29 @@ def getUncertainty(possibility) -> bool:
     :return:
     '''
     return rd.randint(1, 100) <= int(possibility * 100)
+
+def getLikelihoodForNormalDistribution(samples: np.ndarray) -> (float, float):
+    '''
+    :param samples: data
+    :return: expectation and standard deiation
+    '''
+    miu = samples.sum() / samples.shape[0]
+    sigma = np.sqrt(samples.var())
+    return miu, sigma
+
+def mulNormalDistribution(miu1, sigma1, miu2, sigma2) -> (float, float):
+    s1 = sigma1 * sigma1
+    s2 = sigma2 * sigma2
+
+    # Scale factor
+    A = np.exp(-1 * (miu1 - miu2) * (miu1 - miu2) / (2 * (s1 + s2))) / np.sqrt(2 * np.pi * (s1 + s2))
+
+    # new expectation
+    miu = A * ((miu1 * s2) + (miu2 * s1)) / (s1 + s2)
+    sigma = A * np.sqrt((s1 * s2) / (s1 + s2))
+
+    return miu, sigma
+
 
 def DiscreteBayesFilterDemo():
     '''
@@ -76,9 +100,58 @@ def DiscreteBayesFilterDemo():
     print(f"Estimated pos distribution: {pos_est}")
 
 
-if __name__ == "__main__":
-    DiscreteBayesFilterDemo()
+def ContinuousBayesFilterDemo():
+    '''
+    Suppose a burning engine, the temperature inside t(k) at a specific time spot k is not directly measurable
+    as a hidden state, but the sensor outside can give an observation y(k) satisfying y(k) = t(k) + Q1, Q1 ~ N(0, sigma1^2).
+    Each time we inject fuels, making the x(k) = x(k - 1) + Q2, Q2 ~ N(A, sigma2^2), this is the physical model.
+    Initial temperature is unknown, so we have no initial prior knowledge
+    :return:
+    '''
 
+    # Ground truth
+    t_true = 2000.0
+    A = 5
+    sigma1, sigma2 = 2, 3
+
+    t_est = np.array([0.0, 1.0]) # [expectation, variance]
+
+    def addFuel():
+        nonlocal t_true
+        q1 = np.random.normal(A, sigma2)
+        t_true += q1
+
+    def observe() -> float:
+        nonlocal t_true
+        q2 = np.random.uniform(0, sigma1)
+        return t_true + q2
+
+    # Begin simulation
+    for i in range(10):
+        # 1. Predict
+        if i == 1:
+            # We dont have initial information, use observation as first prior knowledge
+            y = observe()
+            t_est = np.array([y, sigma1 * sigma1])
+        else:
+            # Use physical model to predict tk
+            addFuel()
+            t_est += np.array([A, sigma2 * sigma2])
+
+        # 2. Update with observation
+        sample_time = 20 # We have to get enough observations to compute a trustable max likelihood
+        observes = [observe() for _ in range(sample_time)]
+        observes = np.array(observes)
+        miu, sigma = getLikelihoodForNormalDistribution(observes)
+        miu, sigma = mulNormalDistribution(miu, sigma, t_est[0], t_est[1]) # Likelihood * prior = posterior
+        print(f"A {miu}, {sigma}")
+        t_est = np.array([miu, sigma])
+
+    print(f"Final temperature: {t_true}")
+    print(f"Estimated temperature: {t_est}")
+
+if __name__ == "__main__":
+    ContinuousBayesFilterDemo()
 
 
 
