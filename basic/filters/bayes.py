@@ -1,10 +1,10 @@
 # tt
+# xyt@bupt.cn
 # 2021.9.2
 # Simple bayes filter demos (discrete and continuous cases)
 
 import numpy as np
 import random as rd
-import math
 
 def getUncertainty(possibility) -> bool:
     '''
@@ -27,8 +27,9 @@ def mulNormalDistribution(miu1, sigma1, miu2, sigma2) -> (float, float):
     s2 = sigma2 * sigma2
 
     # Scale factor
+    # Todo: Why this not work?
     A = np.exp(-1 * (miu1 - miu2) * (miu1 - miu2) / (2 * (s1 + s2))) / np.sqrt(2 * np.pi * (s1 + s2))
-
+    A = 1
     # new expectation
     miu = A * ((miu1 * s2) + (miu2 * s1)) / (s1 + s2)
     sigma = A * np.sqrt((s1 * s2) / (s1 + s2))
@@ -76,7 +77,7 @@ def DiscreteBayesFilterDemo():
     # Begin simulation
     for i in range(200):
         # 1. Predict
-        if i == 1:
+        if i == 0:
             # Initial prior possibility, we dont have any information, so we guess
             pos_est = np.array([1.0 / ROOM_SIZE] * ROOM_SIZE)
         else:
@@ -129,7 +130,7 @@ def ContinuousBayesFilterDemo():
     # Begin simulation
     for i in range(10):
         # 1. Predict
-        if i == 1:
+        if i == 0:
             # We dont have initial information, use observation as first prior knowledge
             y = observe()
             t_est = np.array([y, sigma1 * sigma1])
@@ -144,8 +145,9 @@ def ContinuousBayesFilterDemo():
         observes = np.array(observes)
         miu, sigma = getLikelihoodForNormalDistribution(observes)
         miu, sigma = mulNormalDistribution(miu, sigma, t_est[0], t_est[1]) # Likelihood * prior = posterior
-        print(f"A {miu}, {sigma}")
         t_est = np.array([miu, sigma])
+
+        print(f"Iteration {i + 1}: actual temp = {t_true}, estimated temp = {t_est[0]}")
 
     print(f"Final temperature: {t_true}")
     print(f"Estimated temperature: {t_est}")
