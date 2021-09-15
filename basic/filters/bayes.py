@@ -16,7 +16,7 @@ def getUncertainty(possibility) -> bool:
 def getLikelihoodForNormalDistribution(samples: np.ndarray) -> (float, float):
     '''
     :param samples: data
-    :return: expectation and standard deiation
+    :return: expectation and standard deviation
     '''
     miu = samples.sum() / samples.shape[0]
     sigma = np.sqrt(samples.var())
@@ -147,7 +147,7 @@ def ContinuousBayesFilterDemo():
         miu, sigma = mulNormalDistribution(miu, sigma, t_est[0], t_est[1]) # Likelihood * prior = posterior
         t_est = np.array([miu, sigma])
 
-        print(f"Iteration {i + 1}: actual temp = {t_true}, estimated temp = {t_est[0]}")
+        print(f"Iteration {i + 1}: actual temp = {t_true}, \t\testimated temp = {t_est[0]}")
 
     print(f"Final temperature: {t_true}")
     print(f"Estimated temperature: {t_est}")
