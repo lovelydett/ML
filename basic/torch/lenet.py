@@ -51,7 +51,7 @@ def load_data():
 
     # set up metadata for CIFAR10 data set
     train_set = tv.datasets.CIFAR10(
-        root="/home/tt/Datasets/",
+        root="/home/tt/DataSets/cifar-10-batches-py",
         train=True,
         download=False,
         transform=transform,
@@ -67,7 +67,7 @@ def load_data():
 
     # set uo testing set metas
     test_set = tv.datasets.CIFAR10(
-        root="/home/tt/Datasets/",
+        root="/home/tt/DataSets/cifar-10-batches-py",
         train=False,
         download=False,
         transform=transform,

@@ -34,34 +34,11 @@ def tensor():
     y = y.cuda()
     print(f"x + y (in cuda):\n{x + y}")
 
-def check(x):
-    return True
-
-def func(l1, l2, l3):
-    cnt, i, j, k = 0, 0, 0, 0
-    res = []
-    while cnt < 100:
-        x = -1e5
-        if i < len(l1):
-            x = l1[i]
-        if j < len(l2):
-            x = max(x, l2[j])
-        if k < len(l3):
-            x = max(x, l3[k])
-        if x == -1e5:
-            break
-        if check(x):
-            res.append(x)
-            cnt += 1
-        if i < len(l1) and x == l1[i]:
-            i += 1
-        elif j < len(l2) and x == l2[j]:
-            j += 1
-        else:
-            k += 1
-
-
-
+    # squeeze
+    a = t.tensor([[[1, 2, 3], [4, 5, 6]]])
+    print(f"before squeeze_(0):\n{a.shape} ")
+    a.squeeze_(0)
+    print(f"after squeeze_(0):\n{a.shape} ")
 
 if __name__ == "__main__":
     tensor()
