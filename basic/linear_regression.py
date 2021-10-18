@@ -18,6 +18,7 @@ def generate_data(size=100, num_features=5):
         y[i] += value
     return x, y, params
 
+
 # forward a batch
 def forward(params, x):
     y_hat = np.zeros((x.shape[0], ))
@@ -26,6 +27,7 @@ def forward(params, x):
         for j in range(x[i].shape[0]):
              y_hat[i] += params[j + 1] * x[i][j]
     return y_hat
+
 
 # compute grad on a batch, return dJ/dTheta for each Theta
 def get_grad(params, x, y, y_hat):
@@ -43,12 +45,14 @@ def get_grad(params, x, y, y_hat):
 
     return grads
 
+
 def compute_loss(y, y_hat):
     loss = y - y_hat
     loss **= 2
     loss = loss.sum()
     loss /= 2 * y.shape[0]
     return loss
+
 
 def fit_gradient_descent(x, y, batch_size=20, epochs=10, lr=1e-2):
     batch_size, num_features = x.shape[0], x.shape[1]

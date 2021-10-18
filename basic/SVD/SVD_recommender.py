@@ -9,7 +9,7 @@ import pandas as pd
 def load_data():
     # Load csv data
     header = ["u_id", "i_id", "rate", "ts"]
-    data = pd.read_csv("./u.data", sep='\t', names=header)
+    data = pd.read_csv("u.data", sep='\t', names=header)
     # Build ndarray
     m, n = data.u_id.max(), data.i_id.max()
     res = np.zeros((m, n))
