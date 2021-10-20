@@ -58,4 +58,4 @@ def id3(fields, data):
 
 if __name__ == "__main__":
     fields, data = read_data()
-    
+
