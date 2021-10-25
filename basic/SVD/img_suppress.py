@@ -53,4 +53,4 @@ def suppress_image(filepath):
 
 
 if __name__ == "__main__":
-    suppress_image("./1.jpg")
+    suppress_image("../1.jpg")
