@@ -1,8 +1,7 @@
 '''
 Author: tt
-Date: 2021.10.26
-Description: Cartpole game with memory replay, implemented with pytorch
-This implementation considers NO fixed target net.
+Date: 2021.10.27
+Description: DDQN to play Cartpole game with experience replay, implemented with pytorch, considering fixed target net.
 '''
 
 import torch
@@ -62,12 +61,16 @@ class QNet(torch.nn.Module):
         x = self.softmax(x)
         return x
 
-class DQN:
-    def __init__(self, num_states, num_actions, lr=1e-4):
+class DDQN:
+    def __init__(self, num_states, num_actions, lr=1e-5):
         self.num_actions = num_actions
         self.memory_pool = MemoryPool(capacity=1000)
-        self.net = QNet(num_states=num_states, num_actions=num_actions)
-        self.optimizer = torch.optim.Adam(self.net.parameters(), lr=lr)
+
+        # In DDQN, we have two nets: main and target to cut-off relationship
+        self.main_net = QNet(num_states=num_states, num_actions=num_actions)
+        self.target_net = QNet(num_states=num_states, num_actions=num_actions)
+
+        self.optimizer = torch.optim.Adam(self.main_net.parameters(), lr=lr)
         self.loss_func = torch.nn.SmoothL1Loss() # SmoothL1Loss is HuberLoss
 
     def experience_replay(self, batch_size=20, gamma=0.9):
@@ -84,11 +87,14 @@ class DQN:
         rewards = torch.cat(batch.reward)
         none_final_next_states = torch.cat([s for s in batch.next_state if s is not None])
 
-        state_action_values = self.net.forward(states).gather(1, actions)
+        state_action_values = self.main_net.forward(states).gather(1, actions)
         non_final_mask = torch.ByteTensor(tuple(map(lambda s: s is not None, batch.next_state)))
         next_state_values = torch.zeros(batch_size).cuda()
 
-        next_state_values[non_final_mask] = self.net.forward(none_final_next_states).max(1)[0].detach()
+        # Use main net to decide action for next state
+        next_state_max_actions = self.main_net.forward(none_final_next_states).max(1)[1].unsqueeze(1)
+        # Then use target net to evaluate those new actions in next state
+        next_state_values[non_final_mask] = self.target_net.forward(none_final_next_states).gather(0, next_state_max_actions).squeeze(1).detach()
 
         expected_state_action_values = rewards.cuda() + gamma * next_state_values.cuda()
 
@@ -102,10 +108,13 @@ class DQN:
     def choose_action(self, state, episode):
         e = 0.5 * (1 / (episode + 1))
         if np.random.uniform(0, 1) > e:
-            action = self.net.forward(state).max(1)[1]
+            action = self.main_net.forward(state).max(1)[1]
         else:
             action = torch.IntTensor([np.random.randint(0, self.num_actions)])
         return action
+
+    def update_target_net(self):
+        self.target_net.load_state_dict(self.main_net.state_dict())
 
 
 class Agent:
@@ -113,7 +122,7 @@ class Agent:
     This is the agent in environment, can be seemed as a player
     '''
     def __init__(self, num_states, num_actions):
-        self.brain = DQN(num_states=num_states, num_actions=num_actions) # This is his brain
+        self.brain = DDQN(num_states=num_states, num_actions=num_actions) # This is his brain
 
     def learn(self):
         self.brain.experience_replay() # He learns from his memory
@@ -123,6 +132,9 @@ class Agent:
 
     def memorize(self, state, action, next_state, reward):
         self.brain.memory_pool.push(state, action, next_state, reward)
+
+    def update_target_net(self):
+        self.brain.update_target_net()
 
 class Environment:
     '''
@@ -134,7 +146,7 @@ class Environment:
         self.num_actions = self.env.action_space.n
         self.agent = Agent(self.num_states, self.num_actions)
 
-    def run(self, max_episode=500, max_steps=200):
+    def run(self, max_episode=500, max_steps=200, ddqn_interval=2):
         for ep in range(max_episode):
             observation = self.env.reset() # Get initial observation
             state = observation # Use observation directly as state
@@ -155,6 +167,9 @@ class Environment:
                 if done or step == max_steps:
                     print(f"Episode{ep + 1}: played {step} times, {'Win' if not done else 'Lose'}")
                     break
+                if step % ddqn_interval == 0: # Every several steps, update target net to match main net
+                    self.agent.update_target_net()
+
 
 if __name__ == "__main__":
     env = Environment()
