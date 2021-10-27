@@ -70,7 +70,7 @@ class QNet(torch.nn.Module):
         # Q(s, a) = V(s) + A(s, a)
         V = V.expand(-1, A.shape[1])
         Q = V + A
-        # Q -= torch.mean(A)
+        Q -= torch.mean(A) # Advantage is defined as THE ADVANTAGE each action has towards the average of all!
 
         return Q
 
