@@ -11,7 +11,12 @@ find_package(Boost REQUIRED)
 
 include_directories("/usr/include/glog")
 
-add_executable(xor src/main.cc)
-target_link_libraries(xor "/usr/lib/x86_64-linux-gnu/libglog.so.0" "/usr/lib/x86_64-linux-gnu/libgflags.so.2.2")
-target_link_libraries(xor "/usr/local/lib/caffe/libcaffe.so")
-target_link_libraries(xor "/usr/lib/x86_64-linux-gnu/libboost_system.so")
+add_executable(xor_train src/train.cc)
+target_link_libraries(xor_train "/usr/lib/x86_64-linux-gnu/libglog.so.0" "/usr/lib/x86_64-linux-gnu/libgflags.so.2.2")
+target_link_libraries(xor_train "/usr/local/lib/caffe/libcaffe.so")
+target_link_libraries(xor_train "/usr/lib/x86_64-linux-gnu/libboost_system.so")
+
+add_executable(xor_test src/test.cc)
+target_link_libraries(xor_test "/usr/lib/x86_64-linux-gnu/libglog.so.0" "/usr/lib/x86_64-linux-gnu/libgflags.so.2.2")
+target_link_libraries(xor_test "/usr/local/lib/caffe/libcaffe.so")
+target_link_libraries(xor_test "/usr/lib/x86_64-linux-gnu/libboost_system.so")

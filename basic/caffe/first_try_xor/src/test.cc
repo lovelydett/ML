@@ -38,8 +38,5 @@ int main() {
     // Do train
     solver->Solve();
 
-    /*Testing*/
-
-
     return 0;
 }

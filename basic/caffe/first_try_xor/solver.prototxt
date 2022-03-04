@@ -6,7 +6,7 @@ lr_policy: "step"
 gamma: 0.5
 stepsize: 500000
 
-# Display every 20000 steps
+# Display every 2000 steps
 display: 2000
 max_iter: 5000000
 snapshot: 1000000
