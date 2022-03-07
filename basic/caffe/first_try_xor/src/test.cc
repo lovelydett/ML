@@ -1,3 +1,7 @@
+// Test a xor net with caffe C++ API
+// Author: Yuting Xie
+// 2022.3.6
+
 #include <cstdlib>
 #include <iostream>
 #include <memory>
