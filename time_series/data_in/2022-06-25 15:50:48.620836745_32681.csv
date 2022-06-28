@@ -1,2 +1,0 @@
-ts_start,ts_end,type,component,execution_time,ts_cam,ts_lidar,ts_radar,is_finish
-1656143449204665988,1656143449205115024,Timing,RoutingComponent::Proc,449036,0,0,0,1
